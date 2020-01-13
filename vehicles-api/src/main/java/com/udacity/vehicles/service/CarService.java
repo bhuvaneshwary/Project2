@@ -62,17 +62,22 @@ public class CarService {
      * @param car A car object, which can be either new or existing
      * @return the new/updated car is stored in the repository
      */
-    public Car save(Car car) {
+      public Car save(Car car) {
         if (car.getId() != null) {
             return repository.findById(car.getId())
                     .map(carToBeUpdated -> {
                         carToBeUpdated.setDetails(car.getDetails());
-                        carToBeUpdated.setLocation(car.getLocation());
+                        // Setting car condition on Update/ Setting updated car condition.
+                        carToBeUpdated.setCondition(car.getCondition());
+                        // ReSetting price on update.
+                        carToBeUpdated.setPrice(priceClient.getPrice(car.getId()));
+                        carToBeUpdated.setLocation(mapsClient.getAddress(car.getLocation()));
                         return repository.save(carToBeUpdated);
                     }).orElseThrow(CarNotFoundException::new);
         }
-
-        return repository.save(car);
+            car.setPrice("42000");
+            car.setLocation(mapsClient.getAddress(car.getLocation()));
+            return repository.save(car);
     }
 
     /**
